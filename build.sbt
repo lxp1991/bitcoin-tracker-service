@@ -12,5 +12,6 @@ libraryDependencies ++= Seq(
   guice,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.0.0" % Test,
   ws,
-  ehcache
+  ehcache,
+  "com.github.tototoshi" %% "play-json-naming" % "1.2.0"
 )

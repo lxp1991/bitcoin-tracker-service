@@ -4,24 +4,21 @@ import javax.inject.{Inject, Singleton}
 
 import models.gdax.Product
 import play.api.Configuration
+import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 
-import scala.concurrent.Future
-
-trait Gdax {
-
-  def products(): Future[Seq[Product]]
-}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class Gdax @Inject()(configuration: Configuration, ws: WSClient) extends Gdax {
+class GdaxService @Inject()(configuration: Configuration, ws: WSClient)(implicit exec: ExecutionContext) {
 
   lazy final val endpoint = configuration.underlying.getString("gdax.endpoint")
 
-  override def products(): Future[Seq[Product]] = {
+  def products: Future[Option[Seq[Product]]] = {
     val url = s"$endpoint/products"
+
     ws.url(url).withMethod("GET").get().map { response =>
-      response.json.validate[Seq[Product]]
+      Json.parse(response.body).asOpt[Seq[Product]]
     }
   }
 }
