@@ -2,7 +2,7 @@ package services
 
 import javax.inject.{Inject, Singleton}
 
-import models.gdax.Product
+import models.gdax.{DayStats, Product}
 import play.api.Configuration
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
@@ -19,6 +19,14 @@ class GdaxService @Inject()(configuration: Configuration, ws: WSClient)(implicit
 
     ws.url(url).withMethod("GET").get().map { response =>
       Json.parse(response.body).asOpt[Seq[Product]]
+    }
+  }
+
+  def stats(productId: String): Future[Option[Seq[DayStats]]] = {
+    val url = s"$endpoint/products/$productId/stats"
+
+    ws.url(url).withMethod("GET").get().map { response =>
+      Json.parse(response.body).asOpt[Seq[DayStats]]
     }
   }
 }

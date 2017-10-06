@@ -10,5 +10,6 @@ GET        /count                controllers.CountController.count
 GET        /message              controllers.AsyncController.message
 
 GET        /gdax/products        controllers.gdax.MarketDataController.products
+GET        /gdax/stats           controllers.gdax.MarketDataController.stats
 # Map static resources from the /public folder to the /assets URL path
 GET        /assets/*file         controllers.Assets.versioned(path="/public", file: Asset)

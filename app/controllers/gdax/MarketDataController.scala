@@ -18,4 +18,8 @@ class MarketDataController @Inject()(cc: ControllerComponents,
   def products = Action.async {
     gdaxService.products.map { result => Ok(Json.toJson(result)) }
   }
+
+  def stats = Action.async {
+    gdaxService.stats("BTC-USD").map { result => Ok(Json.toJson(result)) }
+  }
 }
