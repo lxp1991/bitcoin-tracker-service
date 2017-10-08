@@ -6,4 +6,5 @@ object Utilities {
     case Some(v) => v
     case None => "Error"
   }
+
 }
