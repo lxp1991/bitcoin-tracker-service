@@ -1,13 +1,13 @@
 package daos
 
-import java.io.FileInputStream
-import java.time.Instant
+import javax.inject.Inject
 
-import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.datastore._
 import models.gdax.{DayStats, Product}
 
-class DatastoreDao {
+import scala.collection.mutable.ListBuffer
+
+class DatastoreDao @Inject()() {
 
   final val ProjectId = "lxp1991"
   final val Namespace = "dev"
@@ -18,13 +18,12 @@ class DatastoreDao {
     .newBuilder()
     .setNamespace(Namespace)
     .setProjectId(ProjectId)
-    .setCredentials(GoogleCredentials.fromStream(new FileInputStream("C:\\Users\\lxp19\\lxp1991-efcd74acaf4c.json")))
     .build()
   lazy val Datastore = Options.getService
 
   lazy val KeyFactory = Datastore.newKeyFactory()
 
-  def createProduct(product: Product): Key = {
+  def createProduct(product: Product) = {
     val key = KeyFactory.setKind(ProductKind).newKey(product.id)
     val entity = Entity.newBuilder(key)
       .set("baseCurrency", product.baseCurrency)
@@ -39,9 +38,10 @@ class DatastoreDao {
     key
   }
 
-  def createDayStats(dayStats: DayStats): Key = {
-    val key = KeyFactory.setKind(DayStatsKind).newKey(Instant.now.toEpochMilli)
+  def createDayStats(dayStats: DayStats) = {
+    val key = KeyFactory.setKind(DayStatsKind).newKey(dayStats.timestamp)
     val entity = Entity.newBuilder(key)
+      .set("productId", dayStats.id)
       .set("open", dayStats.open.toString)
       .set("high", dayStats.high.toString)
       .set("low", dayStats.low.toString)
@@ -53,17 +53,23 @@ class DatastoreDao {
     key
   }
 
-  //
-  //  def productIds = {
-  //    val query: Query[Entity] = Query.newEntityQueryBuilder()
-  //      .setKind(ProductKind)
-  //      .build()
-  //    val results: QueryResults[Entity] = Datastore.run(query)
-  //    val query: Query[Key] = Query.newKeyQueryBuilder()
-  //      .setKind(ProductKind)
-  //      .build()
-  //
-  //    val result: QueryResults[Key] = Datastore.run(query)
-//}
+
+  /**
+    * return all the product ids from gdax
+    *
+    * @return
+    */
+  def productIds: List[String] = {
+    val query: Query[Key] = Query.newKeyQueryBuilder.setKind(ProductKind).build
+    val readOption = ReadOption.eventualConsistency()
+    val results: QueryResults[Key] = Datastore.run(query, readOption)
+
+    var res = new ListBuffer[String]()
+    while (results.hasNext) {
+      val key = results.next()
+      res += key.getName
+    }
+    res.toList
+  }
 
 }

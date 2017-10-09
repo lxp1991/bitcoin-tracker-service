@@ -7,7 +7,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.GdaxService
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class MarketDataController @Inject()(cc: ControllerComponents,
@@ -21,5 +21,10 @@ class MarketDataController @Inject()(cc: ControllerComponents,
 
   def stats = Action.async {
     gdaxService.stats("BTC-USD").map { result => Ok(Json.toJson(result)) }
+  }
+
+  def runStats = Action.async {
+    gdaxService.runStats("BTC-USD")
+    Future(Ok("Job has been started"))
   }
 }
