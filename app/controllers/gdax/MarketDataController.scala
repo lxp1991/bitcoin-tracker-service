@@ -16,15 +16,21 @@ class MarketDataController @Inject()(cc: ControllerComponents,
 
 
   def products = Action.async {
-    gdaxService.products.map { result => Ok(Json.toJson(result)) }
+    Future(Ok("No"))
   }
 
   def stats = Action.async {
-    gdaxService.stats("BTC-USD").map { result => Ok(Json.toJson(result)) }
+    //    gdaxService.stats("BTC-USD").map { result => Ok(Json.toJson(result)) }
+    Future(Ok("No"))
   }
 
   def runStats = Action.async {
     gdaxService.runStats("BTC-USD")
     Future(Ok("Job has been started"))
+  }
+
+  def run = Action.async {
+    gdaxService.run
+    Future(Ok("triggered"))
   }
 }

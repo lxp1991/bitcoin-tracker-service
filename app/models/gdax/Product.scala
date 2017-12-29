@@ -1,6 +1,5 @@
 package models.gdax
 
-import com.github.tototoshi.play.json.JsonNaming
 import play.api.libs.json.Json
 
 case class Product(id: String,
@@ -13,8 +12,7 @@ case class Product(id: String,
                    marginEnabled: Boolean)
 
 object Product {
-  implicit val productReads = JsonNaming.snakecase(Json.reads[Product])
-  implicit val productWrites = Json.writes[Product]
+  implicit val productReads = Json.format[Product]
 }
 
 

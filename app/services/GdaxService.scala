@@ -1,16 +1,15 @@
 package services
 
-import java.time.Instant
 import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import daos.DatastoreDao
-import models.gdax.{DayStats, Product}
-import play.api.Configuration
+import models.gdax.Trade
 import play.api.libs.ws.WSClient
+import play.api.{Configuration, Logger}
 
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
-import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class GdaxService @Inject()(configuration: Configuration,
@@ -18,35 +17,50 @@ class GdaxService @Inject()(configuration: Configuration,
                             datastoreDao: DatastoreDao,
                             actorSystem: ActorSystem)(implicit exec: ExecutionContext) {
 
+  val logger = Logger(this.getClass)
   lazy final val endpoint = configuration.underlying.getString("gdax.endpoint")
 
-  def products: Future[Option[Seq[Product]]] = {
-    val url = s"$endpoint/products"
+  def run = {
+    trades
+  }
 
-    ws.url(url).withMethod("GET").get().map { response =>
-      val result = response.json.asOpt[Seq[Product]]
-      result.map { r => r.map { s => datastoreDao.createProduct(s) } }
-      result
+  def trades = {
+    val url = s"$endpoint/products/BTC-USD/trades"
+    ws.url(url).withMethod("GET").get.map { response =>
+      logger.info("")
+      val res = response.json.asOpt[List[Trade]]
+      res
+      //      response.json.asOpt[Seq[Product]]
     }
   }
 
-  def stats(productId: String) = {
-    val url = s"$endpoint/products/$productId/stats"
+  def products = {
+    //    val url = s"$endpoint/products"
+    //
+    //    ws.url(url).withMethod("GET").get().map { response =>
+    //      val result = response.json.asOpt[Seq[Product]]
+    //      result.map { r => r.map { s => datastoreDao.createProduct(s) } }
+    //      result
+    //    }
+  }
 
-    ws.url(url).withMethod("GET").get().map { response =>
-      val json = response.json
-      val currentTimeEpoch = Instant.now.toEpochMilli
-      val dayStats = DayStats(productId,
-        currentTimeEpoch,
-        (json \ "open").as[BigDecimal],
-        (json \ "high").as[BigDecimal],
-        (json \ "low").as[BigDecimal],
-        (json \ "volume").as[BigDecimal],
-        (json \ "last").as[BigDecimal],
-        (json \ "volume_30day").as[BigDecimal])
-      datastoreDao.createDayStats(dayStats)
-      dayStats
-    }
+  def stats(productId: String) = {
+    //    val url = s"$endpoint/products/$productId/stats"
+    //
+    //    ws.url(url).withMethod("GET").get().map { response =>
+    //      val json = response.json
+    //      val currentTimeEpoch = Instant.now.toEpochMilli
+    //      val dayStats = DayStats(productId,
+    //        currentTimeEpoch,
+    //        (json \ "open").as[BigDecimal],
+    //        (json \ "high").as[BigDecimal],
+    //        (json \ "low").as[BigDecimal],
+    //        (json \ "volume").as[BigDecimal],
+    //        (json \ "last").as[BigDecimal],
+    //        (json \ "volume_30day").as[BigDecimal])
+    //      datastoreDao.createDayStats(dayStats)
+    //      dayStats
+    //    }
   }
 
   def runStats(productId: String) = {
@@ -55,8 +69,8 @@ class GdaxService @Inject()(configuration: Configuration,
     }
   }
 
-  def productIds: Seq[String] = {
-    datastoreDao.productIds
+  def productIds = {
+    //    datastoreDao.productIds
   }
 
 }
