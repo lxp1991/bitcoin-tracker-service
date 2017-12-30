@@ -4,12 +4,12 @@ import javax.inject.{Inject, Singleton}
 
 import akka.actor.ActorSystem
 import daos.DatastoreDao
-import models.gdax.Trade
+import models.Trade
 import play.api.libs.ws.WSClient
 import play.api.{Configuration, Logger}
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class GdaxService @Inject()(configuration: Configuration,
@@ -24,13 +24,10 @@ class GdaxService @Inject()(configuration: Configuration,
     trades
   }
 
-  def trades = {
+  def trades: Future[Option[List[Trade]]] = {
     val url = s"$endpoint/products/BTC-USD/trades"
     ws.url(url).withMethod("GET").get.map { response =>
-      logger.info("")
-      val res = response.json.asOpt[List[Trade]]
-      res
-      //      response.json.asOpt[Seq[Product]]
+      response.json.asOpt[List[Trade]](Trade.fromGdax)
     }
   }
 

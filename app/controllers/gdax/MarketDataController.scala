@@ -3,7 +3,6 @@ package controllers.gdax
 import javax.inject.{Inject, Singleton}
 
 import play.api.Configuration
-import play.api.libs.json.Json
 import play.api.mvc.{AbstractController, ControllerComponents}
 import services.GdaxService
 
@@ -30,7 +29,9 @@ class MarketDataController @Inject()(cc: ControllerComponents,
   }
 
   def run = Action.async {
-    gdaxService.run
-    Future(Ok("triggered"))
+    gdaxService.run.map {
+      Ok(_)
+    }
+    //    Future(Ok("triggered"))
   }
 }
