@@ -3,15 +3,16 @@
 # ~~~~
 
 # An example controller showing a sample home page
-GET        /                     controllers.HomeController.index
+GET        /                    controllers.HomeController.index
 # An example controller showing how to use dependency injection
-GET        /count                controllers.CountController.count
+GET        /count               controllers.CountController.count
 # An example controller showing how to write asynchronous code
-GET        /message              controllers.AsyncController.message
+GET        /message             controllers.AsyncController.message
 
-GET        /gdax/products        controllers.gdax.MarketDataController.products
-GET        /gdax/stats           controllers.gdax.MarketDataController.stats
-GET        /gdax/runstats        controllers.gdax.MarketDataController.runStats
-GET        /gdax/run             controllers.gdax.MarketDataController.run
+GET        /products            controllers.coinbase.controller.products
+GET        /ticker              controllers.coinbase.controller.ticker
+GET        /stats               controllers.coinbase.controller.stats
+GET        /runstats            controllers.coinbase.controller.runStats
+GET        /run                 controllers.coinbase.controller.run
 # Map static resources from the /public folder to the /assets URL path
-GET        /assets/*file         controllers.Assets.versioned(path="/public", file: Asset)
+GET        /assets/*file        controllers.Assets.versioned(path="/public", file: Asset)
